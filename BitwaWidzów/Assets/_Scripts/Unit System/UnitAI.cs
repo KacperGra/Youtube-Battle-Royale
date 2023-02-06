@@ -33,6 +33,7 @@ namespace Battle
         [SerializeField] private float _attackDelay = 0.5f;
         [SerializeField] private float _combatRange = 1f;
         [SerializeField] private float _searchRange = 3f;
+        [SerializeField] private float _itemSearchRange = 25f;
 
         private int _currentDamage;
         private float _attackTimer = 0f;
@@ -164,7 +165,7 @@ namespace Battle
 
         private bool TryFindItem()
         {
-            Collider[] colliders = Physics.OverlapSphere(transform.position, _searchRange);
+            Collider[] colliders = Physics.OverlapSphere(transform.position, _itemSearchRange);
 
             WorldItem bestItem = null;
             float bestDistance = 999f;
@@ -216,12 +217,12 @@ namespace Battle
 
                 int damage = UnityEngine.Random.Range(1, _currentDamage) + _unit.Equipment.Damage;
 
-                _target.HealthSystem.Health -= damage;
+                _target.TakeDamage(damage);
                 _unit.Animator.SetTrigger("Attack");
 
                 if (_target.HealthSystem.Health <= 0)
                 {
-                    OnTargetKilled?.Invoke(_target.LevelSystem.Level * 50);
+                    OnTargetKilled?.Invoke(_target.LevelSystem.Level * 100);
 
                     _target = null;
                     SetState(State.Travel);

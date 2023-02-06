@@ -1,15 +1,25 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
 public class UnitEquipment : MonoBehaviour
 {
+    public event Action OnArmorEquiped;
+
+    [Header("Weapon")]
     [SerializeField] private GameObject _baseball;
     [SerializeField] private GameObject _sword;
     [SerializeField] private GameObject _woodenPlank;
     [SerializeField] private GameObject _metalPipe;
     [SerializeField] private GameObject _boxingGlove;
 
+    [Header("Armor")]
+    [SerializeField] private GameObject _noobVR;
+    [SerializeField] private GameObject _proVR;
+    [SerializeField] private GameObject _shield;
+
     private WeaponItem _weaponData;
+    private ArmorItem _armorItem;
 
     public int Damage
     {
@@ -21,6 +31,32 @@ public class UnitEquipment : MonoBehaviour
             }
 
             return _weaponData.Damage;
+        }
+    }
+
+    public int Armor
+    {
+        get
+        {
+            if (_armorItem == null)
+            {
+                return 0;
+            }
+
+            return _armorItem.Armor;
+        }
+    }
+
+    public int Health
+    {
+        get
+        {
+            if (_armorItem == null)
+            {
+                return 0;
+            }
+
+            return _armorItem.Health;
         }
     }
 
@@ -63,6 +99,33 @@ public class UnitEquipment : MonoBehaviour
         }
     }
 
+    public void EquipArmor(ArmorItem item)
+    {
+        if (item.Health < Health)
+        {
+            return;
+        }
+
+        _armorItem = item;
+        DisableAllArmor();
+        switch (_armorItem.ArmorType)
+        {
+            case ArmorType.NoobVR:
+                _noobVR.SetActive(true);
+                break;
+
+            case ArmorType.ProVR:
+                _proVR.SetActive(true);
+                break;
+
+            case ArmorType.Shield:
+                _shield.SetActive(true);
+                break;
+        }
+
+        OnArmorEquiped?.Invoke();
+    }
+
     private void DisableAllWeapons()
     {
         _baseball.SetActive(false);
@@ -70,5 +133,12 @@ public class UnitEquipment : MonoBehaviour
         _woodenPlank.SetActive(false);
         _metalPipe.SetActive(false);
         _boxingGlove.SetActive(false);
+    }
+
+    private void DisableAllArmor()
+    {
+        _noobVR.SetActive(false);
+        _proVR.SetActive(false);
+        _shield.SetActive(false);
     }
 }

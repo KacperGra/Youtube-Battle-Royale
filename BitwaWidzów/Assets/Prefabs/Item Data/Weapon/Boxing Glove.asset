@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f550e21108aed54a9d78bee02077add, type: 3}
-  m_Name: Apple
+  m_Script: {fileID: 11500000, guid: 29fa2bff5f7135641b1f306e559e418a, type: 3}
+  m_Name: Boxing Glove
   m_EditorClassIdentifier: 
-  _name: Apple
-  _healingValue: 100
+  _weaponType: 4
+  _damage: 40

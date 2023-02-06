@@ -9,6 +9,8 @@ public class LevelSystem
 
     public event Action OnLevelChanged;
 
+    public event Action OnXPChanged;
+
     private int _level;
     private int _exp;
 
@@ -35,6 +37,8 @@ public class LevelSystem
 
                 OnLevelChanged?.Invoke();
             }
+
+            OnXPChanged?.Invoke();
         }
     }
 

@@ -23,6 +23,12 @@ public class UnitUI : MonoBehaviour
 
         unit.HealthSystem.OnHealthChanged += UpdateHealth;
         unit.LevelSystem.OnLevelChanged += UpdateLevel;
+        unit.LevelSystem.OnXPChanged += OnXPChanged;
+    }
+
+    private void OnXPChanged()
+    {
+        _levelText.text = $"LVL: {_unit.LevelSystem.Level} (XP {_unit.LevelSystem.Exp}/{_unit.LevelSystem.GetTargetExp()})";
     }
 
     private void Update()

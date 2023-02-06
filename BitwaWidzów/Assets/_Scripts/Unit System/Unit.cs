@@ -44,6 +44,12 @@ namespace Battle
             _healthSystem.OnHealthChanged += HandleHealthChanged;
             _levelSystem.OnLevelChanged += HandleLevelChanged;
             _unitAI.OnTargetKilled += HandleTargetKilled;
+            _equipment.OnArmorEquiped += OnArmorEquiped;
+        }
+
+        private void OnArmorEquiped()
+        {
+            _healthSystem.MaxHealth = CalculateMaxHealth();
         }
 
         private void Update()
@@ -51,12 +57,12 @@ namespace Battle
             var cameraPosition = Camera.main.transform.position;
             float distance = Vector3.Distance(cameraPosition, transform.position);
 
-            _unityUI.gameObject.SetActive(distance < 20f);
+            _unityUI.gameObject.SetActive(distance < 30f);
         }
 
         private void HandleLevelChanged()
         {
-            _healthSystem.MaxHealth = _health * _levelSystem.Level;
+            _healthSystem.MaxHealth = CalculateMaxHealth();
             _healthSystem.Health = _healthSystem.MaxHealth;
 
             _unitAI.CurrentDamage = _unitAI.BaseDamage * _levelSystem.Level;
@@ -77,11 +83,6 @@ namespace Battle
                 StopCoroutine(_materialCoroutine);
             }
             _materialCoroutine = StartCoroutine(SetDefaultMaterial());
-
-            if (_healthSystem.Health <= 0)
-            {
-                gameObject.SetActive(false);
-            }
         }
 
         private void HandleTargetKilled(int exp)
@@ -95,6 +96,27 @@ namespace Battle
 
             _bodyMesh.material = _defaultMaterial;
             _handMesh.material = _defaultMaterial;
+        }
+
+        private int CalculateMaxHealth()
+        {
+            return _health * _levelSystem.Level + _equipment.Health;
+        }
+
+        public void TakeDamage(int damage)
+        {
+            int fixedDamage = damage - _equipment.Armor;
+            if (fixedDamage < 0)
+            {
+                fixedDamage = 0;
+            }
+
+            _healthSystem.Health -= fixedDamage;
+
+            if (_healthSystem.Health <= 0)
+            {
+                gameObject.SetActive(false);
+            }
         }
     }
 }
