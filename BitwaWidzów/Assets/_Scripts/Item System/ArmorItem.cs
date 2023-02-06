@@ -1,0 +1,21 @@
+﻿using Battle;
+using System.Collections;
+using UnityEngine;
+
+public enum ArmorType
+{
+    NoobVR,
+    ProVR,
+    Shield
+}
+
+public class ArmorItem : ItemData
+{
+    [SerializeField] private ArmorType _armorType;
+    [SerializeField] private int _armor = 5;
+    [SerializeField] private int _health = 100;
+
+    public override void UseItem(Unit unit)
+    {
+    }
+}
