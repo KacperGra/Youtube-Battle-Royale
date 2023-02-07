@@ -61,6 +61,7 @@ namespace Battle
         {
             _unit = unit;
 
+            SetState(State.Idle);
             FindNewTargetLocation();
         }
 
@@ -112,14 +113,19 @@ namespace Battle
         {
             _agent.SetDestination(_newLocation);
 
-            if (TryFindItem())
+            var zone = GameManager.Instance.Zone;
+            bool isInZone = zone.IsUnitInZone(_unit);
+            if (!isInZone)
             {
-                return;
-            }
+                if (TryFindItem())
+                {
+                    return;
+                }
 
-            if (TryFindNewTarget())
-            {
-                return;
+                if (TryFindNewTarget())
+                {
+                    return;
+                }
             }
 
             float distance = _agent.remainingDistance;
@@ -215,19 +221,28 @@ namespace Battle
             {
                 _attackTimer -= _attackDelay;
 
-                int damage = UnityEngine.Random.Range(1, _currentDamage) + _unit.Equipment.Damage;
+                int damage = UnityEngine.Random.Range(1, GetDamage());
 
                 _target.TakeDamage(damage);
                 _unit.Animator.SetTrigger("Attack");
 
                 if (_target.HealthSystem.Health <= 0)
                 {
-                    OnTargetKilled?.Invoke(_target.LevelSystem.Level * 100);
-
-                    _target = null;
-                    SetState(State.Travel);
+                    HandleTargetKill();
                 }
             }
+        }
+
+        private void HandleTargetKill()
+        {
+            _unit.Equipment.EquipWeapon(_target.Equipment.WeaponItem);
+            _unit.Equipment.EquipArmor(_target.Equipment.ArmorItem);
+
+            _unit.LeaderboardStatistics.AddKill();
+            OnTargetKilled?.Invoke(_target.LevelSystem.Level * 100);
+
+            _target = null;
+            SetState(State.Travel);
         }
 
         private void FindNewTargetLocation()
@@ -256,22 +271,27 @@ namespace Battle
             switch (_state)
             {
                 case State.Idle:
-                    _agent.speed = _baseSpeed;
+                    _agent.speed = _baseSpeed + _unit.Speed;
                     break;
 
                 case State.Combat:
-                    _agent.speed = _baseSpeed;
+                    _agent.speed = _baseSpeed + _unit.Speed;
                     break;
 
                 case State.Travel:
-                    _agent.speed = _travelSpeed;
+                    _agent.speed = _travelSpeed + _unit.Speed;
                     FindNewTargetLocation();
                     break;
 
                 case State.ItemTravel:
-                    _agent.speed = _travelSpeed;
+                    _agent.speed = _travelSpeed + _unit.Speed;
                     break;
             }
+        }
+
+        public int GetDamage()
+        {
+            return _currentDamage + _unit.Equipment.Damage;
         }
     }
 }

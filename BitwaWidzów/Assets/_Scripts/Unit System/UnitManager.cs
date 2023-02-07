@@ -9,6 +9,8 @@ namespace Battle
         private List<Unit> _unitList = new List<Unit>();
         private Zone _zone;
 
+        public List<Unit> UnitList => _unitList;
+
         private void Start()
         {
             _zone = GameManager.Instance.Zone;

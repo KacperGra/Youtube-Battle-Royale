@@ -10,6 +10,7 @@ public class UnitUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI _nicknameText;
     [SerializeField] private TextMeshProUGUI _levelText;
+    [SerializeField] private TextMeshProUGUI _statisticsText;
     [SerializeField] private TextMeshProUGUI _healthText;
     [SerializeField] private Slider _healthSlider;
 
@@ -21,14 +22,23 @@ public class UnitUI : MonoBehaviour
         UpdateLevel();
         UpdateHealth();
 
+        _nicknameText.text = _unit.Nickname;
+
         unit.HealthSystem.OnHealthChanged += UpdateHealth;
         unit.LevelSystem.OnLevelChanged += UpdateLevel;
         unit.LevelSystem.OnXPChanged += OnXPChanged;
+        unit.Equipment.OnItemEquiped += OnItemEquiped;
+    }
+
+    private void OnItemEquiped()
+    {
+        UpdateStatistcs();
     }
 
     private void OnXPChanged()
     {
         _levelText.text = $"LVL: {_unit.LevelSystem.Level} (XP {_unit.LevelSystem.Exp}/{_unit.LevelSystem.GetTargetExp()})";
+        UpdateStatistcs();
     }
 
     private void Update()
@@ -39,6 +49,12 @@ public class UnitUI : MonoBehaviour
     private void UpdateLevel()
     {
         _levelText.text = $"LVL: {_unit.LevelSystem.Level} (XP {_unit.LevelSystem.Exp}/{_unit.LevelSystem.GetTargetExp()})";
+        UpdateStatistcs();
+    }
+
+    private void UpdateStatistcs()
+    {
+        _statisticsText.text = $"Damage: {_unit.AI.GetDamage()}\nArmor: {_unit.GetArmor()}\nKills: {_unit.LeaderboardStatistics.Kills}";
     }
 
     private void UpdateHealth()

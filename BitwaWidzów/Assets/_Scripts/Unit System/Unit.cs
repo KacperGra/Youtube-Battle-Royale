@@ -18,6 +18,9 @@ namespace Battle
 
         [Header("Stats")]
         [SerializeField] private int _health = 100;
+        [SerializeField] private int _armorPerLevel = 1;
+        [SerializeField] private float _speedPerLevel = 0.2f;
+        [SerializeField] private int _healthRegeneration = 1;
 
         [Header("Materials")]
         [SerializeField] private float _damageMaterialTime = 0.1f;
@@ -26,30 +29,42 @@ namespace Battle
 
         private Coroutine _materialCoroutine;
         private HealthSystem _healthSystem;
+        private string _nickname;
         private readonly LevelSystem _levelSystem = new();
+        private readonly LeaderboardStatistics _leaderboardStatistics = new();
 
+        public string Nickname
+        {
+            get => _nickname;
+            set
+            {
+                _nickname = value;
+            }
+        }
+
+        public float Speed => _speedPerLevel * (_levelSystem.Level - 1);
+
+        public UnitAI AI => _unitAI;
         public UnitEquipment Equipment => _equipment;
         public HealthSystem HealthSystem => _healthSystem;
         public LevelSystem LevelSystem => _levelSystem;
+        public LeaderboardStatistics LeaderboardStatistics => _leaderboardStatistics;
         public Animator Animator => _animator;
 
-        private void Awake()
+        private void Start()
         {
             _healthSystem = new HealthSystem(_health);
-            _unityUI.Initialize(this);
             _unitAI.Initialize(this);
 
             HandleLevelChanged();
+            StartCoroutine(RegenerateHealth());
 
             _healthSystem.OnHealthChanged += HandleHealthChanged;
             _levelSystem.OnLevelChanged += HandleLevelChanged;
             _unitAI.OnTargetKilled += HandleTargetKilled;
             _equipment.OnArmorEquiped += OnArmorEquiped;
-        }
 
-        private void OnArmorEquiped()
-        {
-            _healthSystem.MaxHealth = CalculateMaxHealth();
+            _unityUI.Initialize(this);
         }
 
         private void Update()
@@ -58,6 +73,11 @@ namespace Battle
             float distance = Vector3.Distance(cameraPosition, transform.position);
 
             _unityUI.gameObject.SetActive(distance < 30f);
+        }
+
+        private void OnArmorEquiped()
+        {
+            _healthSystem.MaxHealth = CalculateMaxHealth();
         }
 
         private void HandleLevelChanged()
@@ -70,19 +90,6 @@ namespace Battle
 
         private void HandleHealthChanged()
         {
-            if (!gameObject.activeSelf)
-            {
-                return;
-            }
-
-            _bodyMesh.material = _damageMaterial;
-            _handMesh.material = _damageMaterial;
-
-            if (_materialCoroutine != null)
-            {
-                StopCoroutine(_materialCoroutine);
-            }
-            _materialCoroutine = StartCoroutine(SetDefaultMaterial());
         }
 
         private void HandleTargetKilled(int exp)
@@ -98,14 +105,30 @@ namespace Battle
             _handMesh.material = _defaultMaterial;
         }
 
+        private IEnumerator RegenerateHealth()
+        {
+            while (true)
+            {
+                yield return new WaitForSeconds(1f);
+
+                _healthSystem.Health += _healthRegeneration * _levelSystem.Level;
+            }
+        }
+
         private int CalculateMaxHealth()
         {
             return _health * _levelSystem.Level + _equipment.Health;
         }
 
-        public void TakeDamage(int damage)
+        public void TakeDamage(int damage, bool ignoreArmor = false)
         {
-            int fixedDamage = damage - _equipment.Armor;
+            int fixedDamage = damage;
+            if (!ignoreArmor)
+            {
+                int randomDecreaseValue = UnityEngine.Random.Range(0, GetArmor());
+                fixedDamage -= randomDecreaseValue;
+            }
+
             if (fixedDamage < 0)
             {
                 fixedDamage = 0;
@@ -113,10 +136,29 @@ namespace Battle
 
             _healthSystem.Health -= fixedDamage;
 
+            if (!gameObject.activeSelf)
+            {
+                return;
+            }
+
+            _bodyMesh.material = _damageMaterial;
+            _handMesh.material = _damageMaterial;
+
+            if (_materialCoroutine != null)
+            {
+                StopCoroutine(_materialCoroutine);
+            }
+            _materialCoroutine = StartCoroutine(SetDefaultMaterial());
+
             if (_healthSystem.Health <= 0)
             {
                 gameObject.SetActive(false);
             }
+        }
+
+        public int GetArmor()
+        {
+            return _equipment.Armor + _armorPerLevel * (_levelSystem.Level - 1);
         }
     }
 }

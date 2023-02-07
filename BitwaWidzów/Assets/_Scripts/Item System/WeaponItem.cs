@@ -8,7 +8,8 @@ public enum WeaponType
     Sword,
     WoodenPlank,
     MetalPipe,
-    BoxingGlove
+    BoxingGlove,
+    DemonSword
 }
 
 [CreateAssetMenu(menuName = "Battle/New Weapon Item")]

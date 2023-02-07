@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class UnitEquipment : MonoBehaviour
 {
+    public event Action OnItemEquiped;
+
     public event Action OnArmorEquiped;
 
     [Header("Weapon")]
@@ -12,25 +14,29 @@ public class UnitEquipment : MonoBehaviour
     [SerializeField] private GameObject _woodenPlank;
     [SerializeField] private GameObject _metalPipe;
     [SerializeField] private GameObject _boxingGlove;
+    [SerializeField] private GameObject _demonSword;
 
     [Header("Armor")]
     [SerializeField] private GameObject _noobVR;
     [SerializeField] private GameObject _proVR;
     [SerializeField] private GameObject _shield;
 
-    private WeaponItem _weaponData;
+    private WeaponItem _weaponItem;
     private ArmorItem _armorItem;
+
+    public WeaponItem WeaponItem => _weaponItem;
+    public ArmorItem ArmorItem => _armorItem;
 
     public int Damage
     {
         get
         {
-            if (_weaponData == null)
+            if (_weaponItem == null)
             {
                 return 0;
             }
 
-            return _weaponData.Damage;
+            return _weaponItem.Damage;
         }
     }
 
@@ -67,15 +73,20 @@ public class UnitEquipment : MonoBehaviour
 
     public void EquipWeapon(WeaponItem item)
     {
+        if (item == null)
+        {
+            return;
+        }
+
         if (item.Damage <= Damage)
         {
             return;
         }
 
-        _weaponData = item;
+        _weaponItem = item;
 
         DisableAllWeapons();
-        switch (_weaponData.WeaponType)
+        switch (_weaponItem.WeaponType)
         {
             case WeaponType.Baseball:
                 _baseball.SetActive(true);
@@ -96,11 +107,22 @@ public class UnitEquipment : MonoBehaviour
             case WeaponType.BoxingGlove:
                 _boxingGlove.SetActive(true);
                 break;
+
+            case WeaponType.DemonSword:
+                _demonSword.SetActive(true);
+                break;
         }
+
+        OnItemEquiped?.Invoke();
     }
 
     public void EquipArmor(ArmorItem item)
     {
+        if (item == null)
+        {
+            return;
+        }
+
         if (item.Health < Health)
         {
             return;
@@ -124,6 +146,7 @@ public class UnitEquipment : MonoBehaviour
         }
 
         OnArmorEquiped?.Invoke();
+        OnItemEquiped?.Invoke();
     }
 
     private void DisableAllWeapons()

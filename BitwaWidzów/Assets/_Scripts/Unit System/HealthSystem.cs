@@ -16,6 +16,10 @@ public class HealthSystem
         set
         {
             _health = value;
+            if (_health > _maxHealth)
+            {
+                _health = _maxHealth;
+            }
 
             OnHealthChanged?.Invoke();
         }
