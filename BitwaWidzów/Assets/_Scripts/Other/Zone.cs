@@ -8,8 +8,11 @@ public class Zone : MonoBehaviour
 {
     [SerializeField] private float _zoneDecreaseValue = 10f;
     [SerializeField] private int _zoneDamage = 20;
+    [SerializeField] private int _minZoneSize = 250;
 
     private readonly List<Unit> _unitsInZone = new();
+
+    public int MinZoneSize => _minZoneSize;
 
     private void Start()
     {
@@ -20,9 +23,9 @@ public class Zone : MonoBehaviour
     {
         float decreaseValue = _zoneDecreaseValue * Time.deltaTime;
         transform.localScale -= new Vector3(decreaseValue, 0, decreaseValue);
-        if (transform.localScale.x < 0f || transform.localScale.z < 0f)
+        if (transform.localScale.x < _minZoneSize || transform.localScale.z < _minZoneSize)
         {
-            transform.localScale = new Vector3(0, transform.localScale.y, 0);
+            transform.localScale = new Vector3(_minZoneSize, transform.localScale.y, _minZoneSize);
         }
     }
 
@@ -59,6 +62,14 @@ public class Zone : MonoBehaviour
         _unitsInZone.Remove(unit);
     }
 
+    public bool IsPositionInSafeZone(Vector3 position)
+    {
+        float zoneDistance = _minZoneSize / 2;
+        float distance = Vector3.Distance(Vector3.zero, position);
+
+        return distance < zoneDistance;
+    }
+
     public bool IsPositionInZone(Vector3 position)
     {
         float zoneDistance = (transform.localScale.x) / 2;
@@ -70,5 +81,10 @@ public class Zone : MonoBehaviour
     public bool IsUnitInZone(Unit unit)
     {
         return _unitsInZone.Contains(unit);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.DrawSphere(Vector3.zero, _minZoneSize / 2);
     }
 }

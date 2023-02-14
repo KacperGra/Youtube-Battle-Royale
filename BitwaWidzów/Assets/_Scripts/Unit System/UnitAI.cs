@@ -253,6 +253,11 @@ namespace Battle
             {
                 var randomPosition = UnityEngine.Random.insideUnitCircle * _walkDistance;
                 Vector3 tempLocation = transform.position + new Vector3(randomPosition.x, 0, randomPosition.y);
+                if (GameManager.Instance.Zone.IsPositionInSafeZone(tempLocation))
+                {
+                    _newLocation = tempLocation;
+                    return;
+                }
 
                 float distanceFromZone = Vector3.Distance(Vector3.zero, tempLocation);
                 if (distanceFromZone < bestDistanceFromZone)

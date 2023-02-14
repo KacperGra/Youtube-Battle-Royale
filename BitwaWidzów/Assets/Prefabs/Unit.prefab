@@ -877,7 +877,7 @@ MonoBehaviour:
   _bodyMesh: {fileID: 4500419174252899504}
   _handMesh: {fileID: 6126288846476729643}
   _health: 100
-  _armorPerLevel: 4
+  _armorPerLevel: 1
   _speedPerLevel: 0.2
   _healthRegeneration: 1
   _damageMaterialTime: 0.1
@@ -898,8 +898,8 @@ MonoBehaviour:
   _agent: {fileID: 7916983569054786483}
   _baseSpeed: 5
   _travelSpeed: 8
-  _walkDistance: 10
-  _damage: 15
+  _walkDistance: 20
+  _damage: 5
   _attackDelay: 0.5
   _combatRange: 1.5
   _searchRange: 5
