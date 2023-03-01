@@ -33,7 +33,7 @@ namespace Battle
         [SerializeField] private List<ItemToSpawnWrapper> _items;
         [SerializeField] private float _itemSpawnTime = 1f;
 
-        private void Awake()
+        private void Start()
         {
             string text = _nicknamesText.text;
             List<string> _nicknames = text.Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None).ToList();
@@ -59,10 +59,7 @@ namespace Battle
                 unit.Nickname = _nicknames[i];
                 _unityManager.AddUnit(unit);
             }
-        }
 
-        private void Start()
-        {
             StartCoroutine(SpawnRandomItem());
         }
 
@@ -83,9 +80,14 @@ namespace Battle
             }
         }
 
-        private bool IsAbleToSpawnAtPosition(Vector3 position)
+        private bool IsAbleToSpawnAtPosition(Vector3 position, bool isItem = false)
         {
-            var colliders = Physics.OverlapSphere(position, 1f);
+            if (isItem && GameManager.Instance.Zone.IsPositionInZone(position))
+            {
+                return false;
+            }
+
+            Collider[] colliders = Physics.OverlapSphere(position, 1f);
             foreach (var collider in colliders)
             {
                 if (collider.CompareTag("Obstacle"))
@@ -105,7 +107,7 @@ namespace Battle
                 int spawnY = UnityEngine.Random.Range(-_spawnRange, _spawnRange);
 
                 Vector3 randomPosition = new Vector3(spawnX, 1, spawnY);
-                if (!IsAbleToSpawnAtPosition(randomPosition))
+                if (!IsAbleToSpawnAtPosition(randomPosition, true))
                 {
                     continue;
                 }

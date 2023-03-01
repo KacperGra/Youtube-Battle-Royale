@@ -62,7 +62,7 @@ namespace Battle
             _unit = unit;
 
             SetState(State.Idle);
-            FindNewTargetLocation();
+            FindNewTargetLocation(_walkDistance);
         }
 
         public void Update()
@@ -117,12 +117,12 @@ namespace Battle
             bool isInZone = zone.IsUnitInZone(_unit);
             if (!isInZone)
             {
-                if (TryFindItem())
+                if (TryFindNewTarget())
                 {
                     return;
                 }
 
-                if (TryFindNewTarget())
+                if (TryFindItem())
                 {
                     return;
                 }
@@ -131,7 +131,7 @@ namespace Battle
             float distance = _agent.remainingDistance;
             if (distance < 2f)
             {
-                FindNewTargetLocation();
+                FindNewTargetLocation(_walkDistance);
             }
         }
 
@@ -245,7 +245,7 @@ namespace Battle
             SetState(State.Travel);
         }
 
-        private void FindNewTargetLocation()
+        private void FindNewTargetLocation(float range)
         {
             Vector3 bestPosition = transform.position;
             float bestDistanceFromZone = Vector3.Distance(Vector3.zero, bestPosition);
@@ -285,7 +285,7 @@ namespace Battle
 
                 case State.Travel:
                     _agent.speed = _travelSpeed + _unit.Speed;
-                    FindNewTargetLocation();
+                    FindNewTargetLocation(2f);
                     break;
 
                 case State.ItemTravel:

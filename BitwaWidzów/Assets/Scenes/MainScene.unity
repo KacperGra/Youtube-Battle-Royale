@@ -23693,7 +23693,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _zoneDecreaseValue: 5
   _zoneDamage: 150
-  _minZoneSize: 250
+  _minZoneSize: 150
 --- !u!4 &1624274758 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4227120303832420, guid: 26c2762f718a4944387a05fb6aa29a28, type: 3}
